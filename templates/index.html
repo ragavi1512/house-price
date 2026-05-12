@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HousePrice — predict & explore property values</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --surface: #fff;
+      --text: #1b1f24;
+      --muted: #5c6570;
+      --accent: #0d6e6e;
+      --accent-hover: #095858;
+      --border: #e2e6eb;
+      --hero: #0f3d3d;
+      --hero-text: #e8f4f4;
+      --radius: 10px;
+      --shadow: 0 8px 30px rgba(15, 61, 61, 0.08);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.55;
+      color: var(--text);
+      background: var(--bg);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    a { color: var(--accent); }
+    a:hover { color: var(--accent-hover); }
+
+    .skip {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .skip:focus {
+      left: 1rem;
+      top: 1rem;
+      width: auto;
+      height: auto;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+      z-index: 200;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand span { color: var(--accent); }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+    }
+    nav a {
+      text-decoration: none;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    nav a:hover { color: var(--accent); }
+
+    .flash-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem 0;
+    }
+    .flash {
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.92rem;
+      margin-bottom: 0.5rem;
+    }
+    .flash.success { background: #e6f4ef; color: #14532d; border: 1px solid #b8dfc8; }
+    .flash.error { background: #fdecec; color: #7f1d1d; border: 1px solid #f5c4c4; }
+    .flash.info { background: #eef4fb; color: #1e3a5f; border: 1px solid #c5d8f0; }
+
+    section {
+      scroll-margin-top: 4.5rem;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 1.25rem;
+    }
+
+    #home {
+      background: linear-gradient(160deg, var(--hero) 0%, #164f4f 55%, #1a6b6b 100%);
+      color: var(--hero-text);
+      padding: 4rem 1.25rem 4.5rem;
+    }
+    #home .wrap { padding: 0; max-width: 720px; }
+    #home h1 {
+      font-size: clamp(1.75rem, 4vw, 2.35rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+    }
+    #home p.lead {
+      font-size: 1.1rem;
+      opacity: 0.92;
+      margin: 0 0 1.75rem;
+      max-width: 38rem;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: #fff;
+      color: var(--hero);
+    }
+    .btn-primary:hover { background: #e8f4f4; color: var(--hero); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--hero-text);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); color: var(--hero-text); }
+
+    .panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.75rem 1.5rem;
+      margin-bottom: 0;
+    }
+    h2 {
+      font-size: 1.35rem;
+      margin: 0 0 1rem;
+      letter-spacing: -0.02em;
+    }
+    h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+    p { margin: 0 0 1rem; color: var(--muted); }
+    p:last-child { margin-bottom: 0; }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .tech-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      background: var(--bg);
+    }
+    .tech-card strong { display: block; color: var(--text); margin-bottom: 0.25rem; }
+    .tech-card span { font-size: 0.88rem; color: var(--muted); }
+
+    form .field { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font: inherit;
+      background: var(--surface);
+    }
+    input:focus, textarea:focus {
+      outline: 2px solid rgba(13, 110, 110, 0.35);
+      outline-offset: 1px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    .btn-submit {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-submit:hover { background: var(--accent-hover); color: #fff; }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app-mobile.css') }}">
+  <script src="{{ url_for('static', filename='js/site-mobile-nav.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip" href="#home">Skip to content</a>
+
+  <header class="marketing-header">
+    <div class="nav-inner">
+      <a class="brand" href="{{ url_for('index') }}#home">House<span>Price</span></a>
+      <button type="button" class="marketing-nav-toggle" aria-expanded="false" aria-label="Open menu" aria-controls="site-primary-nav"><span aria-hidden="true">☰</span></button>
+      <nav id="site-primary-nav" aria-label="Primary">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#technology">Technology</a></li>
+          <li><a href="#contact">Contact</a></li>
+          {% if current_user_email %}
+          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('logout') }}">Log out</a></li>
+          {% else %}
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap" role="status">
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main>
+    <section id="home" aria-labelledby="home-heading">
+      <div class="wrap">
+        <h1 id="home-heading">Estimate property prices with confidence</h1>
+        <p class="lead">
+          HousePrice is your end-to-end companion for exploring housing data, running machine-learning
+          estimates, and understanding what drives value in your market — from first glance to detailed
+          breakdowns, all in one web experience.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#about">How it works</a>
+          {% if current_user_email %}
+          <a class="btn btn-ghost" href="{{ url_for('dashboard') }}">Dashboard</a>
+          {% else %}
+          <a class="btn btn-ghost" href="{{ url_for('login') }}">Sign in</a>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-heading">
+      <div class="wrap">
+        <div class="panel">
+          <h2 id="about-heading">About the application</h2>
+          <p>
+            The application brings together data preparation, a trained pricing model, and an interactive
+            web layer so you can submit property attributes (such as size, location, and age) and receive
+            predicted sale prices along with context you can trust.
+          </p>
+          <p>
+            Whether you are comparing listings, sanity-checking an offer, or learning how models interpret
+            features, HousePrice is designed to stay transparent: clear inputs, readable outputs, and room
+            to grow into dashboards and saved projects as your workflow matures.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="technology" aria-labelledby="tech-heading">
+      <div class="wrap">
+        <div class="panel">
+          <h2 id="tech-heading">Technology used</h2>
+          <p>Built with a small, dependable stack you can extend as your model and UI evolve.</p>
+          <div class="tech-grid">
+            <div class="tech-card">
+              <strong>Python</strong>
+              <span>Core language for data handling and model code.</span>
+            </div>
+            <div class="tech-card">
+              <strong>Flask</strong>
+              <span>Web framework for routes, templates, and forms.</span>
+            </div>
+            <div class="tech-card">
+              <strong>Jinja2</strong>
+              <span>Server-rendered HTML for fast, accessible pages.</span>
+            </div>
+            <div class="tech-card">
+              <strong>HTML &amp; CSS</strong>
+              <span>Semantic layout and responsive styling.</span>
+            </div>
+            <div class="tech-card">
+              <strong>Machine learning</strong>
+              <span>Pandas, scikit-learn (or similar) for training and inference.</span>
+            </div>
+            <div class="tech-card">
+              <strong>Deployment-ready</strong>
+              <span>WSGI-friendly for production hosts when you go live.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-heading">
+      <div class="wrap">
+        <div class="panel">
+          <h2 id="contact-heading">Contact</h2>
+          <p>
+            Questions about the project, collaborations, or feedback on predictions? Send a note below.
+            (This demo stores nothing permanently — wire it to email or a database when you need real delivery.)
+          </p>
+          <form method="post" action="{{ url_for('contact') }}">
+            <div class="field">
+              <label for="contact-name">Name</label>
+              <input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Your name">
+            </div>
+            <div class="field">
+              <label for="contact-email">Email</label>
+              <input id="contact-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" name="message" placeholder="How can we help?"></textarea>
+            </div>
+            <button class="btn btn-submit" type="submit">Send message</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>HousePrice — house price prediction demo. © 2026</p>
+  </footer>
+</body>
+</html>

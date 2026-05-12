@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in — HousePrice</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --surface: #fff;
+      --text: #1b1f24;
+      --muted: #5c6570;
+      --accent: #0d6e6e;
+      --accent-hover: #095858;
+      --border: #e2e6eb;
+      --radius: 10px;
+      --shadow: 0 8px 30px rgba(15, 61, 61, 0.08);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.55;
+      color: var(--text);
+      background: var(--bg);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: var(--accent); }
+    a:hover { color: var(--accent-hover); }
+
+    header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .brand span { color: var(--accent); }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+    }
+    nav a {
+      text-decoration: none;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    nav a:hover { color: var(--accent); }
+    nav a[aria-current="page"] { color: var(--accent); font-weight: 600; }
+
+    .flash-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem 0;
+    }
+    .flash {
+      padding: 0.65rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.92rem;
+      margin-bottom: 0.5rem;
+    }
+    .flash.success { background: #e6f4ef; color: #14532d; border: 1px solid #b8dfc8; }
+    .flash.error { background: #fdecec; color: #7f1d1d; border: 1px solid #f5c4c4; }
+    .flash.info { background: #eef4fb; color: #1e3a5f; border: 1px solid #c5d8f0; }
+
+    main {
+      flex: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 2.5rem 1.25rem;
+    }
+    .panel {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.75rem 1.5rem;
+      max-width: 28rem;
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .sub { margin: 0 0 1.25rem; color: var(--muted); font-size: 0.95rem; }
+
+    form .field { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font: inherit;
+      background: var(--surface);
+    }
+    input:focus {
+      outline: 2px solid rgba(13, 110, 110, 0.35);
+      outline-offset: 1px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn:hover { background: var(--accent-hover); }
+
+    .back {
+      margin-top: 1.25rem;
+      font-size: 0.92rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app-mobile.css') }}">
+  <script src="{{ url_for('static', filename='js/site-mobile-nav.js') }}" defer></script>
+</head>
+<body>
+  <header class="marketing-header">
+    <div class="nav-inner">
+      <a class="brand" href="{{ url_for('index') }}">House<span>Price</span></a>
+      <button type="button" class="marketing-nav-toggle" aria-expanded="false" aria-label="Open menu" aria-controls="site-primary-nav"><span aria-hidden="true">☰</span></button>
+      <nav id="site-primary-nav" aria-label="Primary">
+        <ul>
+          <li><a href="{{ url_for('index') }}#home">Home</a></li>
+          <li><a href="{{ url_for('index') }}#about">About</a></li>
+          <li><a href="{{ url_for('index') }}#technology">Technology</a></li>
+          <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+          <li><a href="{{ url_for('login') }}" aria-current="page">Login</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap" role="status">
+    {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main>
+    <div class="panel">
+      <h1>Log in</h1>
+      <p class="sub">
+        Use your HousePrice account email and password, then click <strong>Log in</strong> to open your dashboard.
+      </p>
+      <form method="post" action="{{ url_for('login') }}">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" required value="{{ default_email }}">
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required value="{{ default_password }}">
+        </div>
+        <button class="btn" type="submit">Log in</button>
+      </form>
+      <p class="back"><a href="{{ url_for('index') }}">← Back to home</a></p>
+    </div>
+  </main>
+
+  <footer>
+    <p>HousePrice — house price prediction demo. © 2026</p>
+  </footer>
+</body>
+</html>
